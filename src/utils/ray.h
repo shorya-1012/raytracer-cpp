@@ -13,7 +13,7 @@ public:
   const Point3 &origin() const { return _origin; }
   const Point3 &direction() const { return _direction; }
 
-  Point3 at(double t) { return _origin + t * _direction; }
+  const Point3 at(double t) const { return _origin + t * _direction; }
 };
 
 //
