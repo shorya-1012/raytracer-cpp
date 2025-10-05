@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hittable.hpp"
+#include "intervals.hpp"
 #include <memory>
 #include <vector>
 
@@ -16,14 +17,14 @@ public:
   }
   void clear() { objects.clear(); }
 
-  virtual bool hit(const Ray &ray, double t_min, double t_max,
+  virtual bool hit(const Ray &ray, Interval ray_t,
                    HitRecord &rec) const override {
     bool hit_anything = false;
     HitRecord temp_rec;
-    double closest = t_max;
+    double closest = ray_t.max;
 
     for (const auto &object : objects) {
-      if (object->hit(ray, t_min, closest, temp_rec)) {
+      if (object->hit(ray, Interval(ray_t.min, closest), temp_rec)) {
         hit_anything = true;
         closest = temp_rec.t;
         rec = temp_rec;
