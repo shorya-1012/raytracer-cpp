@@ -12,5 +12,3 @@ set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 add_executable(${PROJECT_NAME} 
   ${SOURCE_DIR}/main.cpp
 )
-
-
