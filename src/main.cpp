@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   world.push_back(std::make_shared<Sphere>(Point3(0, 0, -1), 0.5));
   world.push_back(std::make_shared<Sphere>(Point3(0, -100.5, -1), 100));
 
-  Camera camera(image_width, aspect_ratio);
+  Camera camera(image_width, aspect_ratio, 10);
 
   camera.render(world);
 
