@@ -1,15 +1,8 @@
 #pragma once
 
 // common header files
-#include <cmath>
-#include <cstdlib>
-#include <iostream>
 #include <limits>
-#include <memory>
 #include <random>
-
-#include "ray.hpp"
-#include "vec3.hpp"
 
 // constants
 constexpr double infinty = std::numeric_limits<double>::infinity();

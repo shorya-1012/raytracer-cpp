@@ -3,6 +3,7 @@
 #include "color.hpp"
 #include "common.hpp"
 #include "hittable.hpp"
+#include "vec3.hpp"
 // #include <cam>
 
 class Camera {
@@ -71,7 +72,8 @@ private:
   Color ray_color(const Ray &r, const Hittable &world) {
     HitRecord rec;
     if (world.hit(r, Interval(0, infinty), rec)) {
-      return 0.5 * (rec.normal + Color(1, 1, 1));
+      Vec3 direction = random_on_hemisphere(rec.normal);
+      return 0.5 * ray_color(Ray(rec.p, direction), world);
     }
 
     Vec3 unit_direction = unit_vector(r.direction());

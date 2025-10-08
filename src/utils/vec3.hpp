@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.hpp"
 #include <cmath>
 #include <iostream>
 
@@ -37,6 +38,14 @@ public:
   double length() const { return std::sqrt(length_squared()); }
   double length_squared() const {
     return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
+  }
+
+  static Vec3 random() {
+    return Vec3(random_double(), random_double(), random_double());
+  }
+  static Vec3 random(double min, double max) {
+    return Vec3(random_double(min, max), random_double(min, max),
+                random_double(min, max));
   }
 };
 
@@ -77,3 +86,21 @@ inline Vec3 cross(const Vec3 &u, const Vec3 &v) {
 }
 
 inline Vec3 unit_vector(const Vec3 &v) { return v / v.length(); }
+
+inline Vec3 random_unit_vector() {
+  while (true) {
+    Vec3 random_vec = Vec3::random(-1, 1);
+    auto lensq = random_vec.length_squared();
+    if (lensq > 1e-160 && lensq <= 1) {
+      return random_vec / sqrt(lensq);
+    }
+  }
+}
+
+inline Vec3 random_on_hemisphere(const Vec3 &normal) {
+  Vec3 on_unit_sphere = random_unit_vector();
+  if (dot(on_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+    return on_unit_sphere;
+  else
+    return -on_unit_sphere;
+}
