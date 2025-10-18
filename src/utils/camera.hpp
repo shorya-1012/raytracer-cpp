@@ -4,17 +4,17 @@
 #include "common.hpp"
 #include "hittable.hpp"
 #include "vec3.hpp"
-// #include <cam>
 
 class Camera {
 public:
   int image_width;
   double aspect_ratio;
   int samples_per_pixel;
+  int max_recursion_depth;
 
   Camera(int width, double aspect_ratio, int samples_per_pixel)
       : image_width(width), aspect_ratio(aspect_ratio),
-        samples_per_pixel(samples_per_pixel) {}
+        samples_per_pixel(samples_per_pixel), max_recursion_depth(50) {}
 
   void render(const Hittable &world) {
     init();
@@ -28,7 +28,7 @@ public:
         Color pixel_color(0.0, 0.0, 0.0);
         for (int sample = 0; sample < samples_per_pixel; sample++) {
           Ray r = get_ray(x, y);
-          pixel_color += ray_color(r, world);
+          pixel_color += ray_color(r, world, max_recursion_depth);
         }
         write_color(std::cout, pixel_sample_scale * pixel_color);
       }
@@ -69,11 +69,13 @@ private:
     pixel_00 = viewport_upper_left + 0.5 * (pixel_delta_v + pixel_delta_u);
   }
 
-  Color ray_color(const Ray &r, const Hittable &world) {
+  Color ray_color(const Ray &r, const Hittable &world, int curr_depth) {
+    if (curr_depth <= 0)
+      return Color(0, 0, 0);
     HitRecord rec;
-    if (world.hit(r, Interval(0, infinty), rec)) {
+    if (world.hit(r, Interval(0.001, infinty), rec)) {
       Vec3 direction = random_on_hemisphere(rec.normal);
-      return 0.5 * ray_color(Ray(rec.p, direction), world);
+      return 0.5 * ray_color(Ray(rec.p, direction), world, curr_depth - 1);
     }
 
     Vec3 unit_direction = unit_vector(r.direction());
