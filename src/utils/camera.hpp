@@ -3,6 +3,7 @@
 #include "color.hpp"
 #include "common.hpp"
 #include "hittable.hpp"
+#include "material.hpp"
 #include "vec3.hpp"
 
 class Camera {
@@ -70,12 +71,18 @@ private:
   }
 
   Color ray_color(const Ray &r, const Hittable &world, int curr_depth) {
+    // Limit recursion
     if (curr_depth <= 0)
       return Color(0, 0, 0);
+
     HitRecord rec;
     if (world.hit(r, Interval(0.001, infinty), rec)) {
-      Vec3 direction = random_on_hemisphere(rec.normal);
-      return 0.5 * ray_color(Ray(rec.p, direction), world, curr_depth - 1);
+      Ray scattered;
+      Color attenuation;
+      if (rec.mat->scatter(r, rec, attenuation, scattered)) {
+        return attenuation * ray_color(scattered, world, curr_depth - 1);
+      }
+      return Color(0, 0, 0);
     }
 
     Vec3 unit_direction = unit_vector(r.direction());

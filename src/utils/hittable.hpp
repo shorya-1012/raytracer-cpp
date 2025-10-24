@@ -2,11 +2,15 @@
 
 #include "intervals.hpp"
 #include "ray.hpp"
+#include <memory>
+
+class Material;
 
 struct HitRecord {
   Point3 p;
   Vec3 normal;
   double t;
+  std::shared_ptr<Material> mat;
   bool front_face;
 
   void set_face_normal(const Vec3 &outward_normal, const Ray &ray) {
