@@ -5,20 +5,50 @@
 #include "hittable.hpp"
 #include "material.hpp"
 #include "vec3.hpp"
+#include <GL/gl.h>
+#include <GL/glut.h>
+#include <vector>
 
 class Camera {
 public:
   int image_width;
+  int image_height;
   double aspect_ratio;
   int samples_per_pixel;
   int max_recursion_depth;
+  std::vector<unsigned char> framebuffer;
 
   Camera(int width, double aspect_ratio, int samples_per_pixel)
       : image_width(width), aspect_ratio(aspect_ratio),
         samples_per_pixel(samples_per_pixel), max_recursion_depth(50) {}
 
+  void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBegin(GL_POINTS);
+    for (size_t y = 0; y < image_height; y++) {
+      for (size_t x = 0; x < image_width; x++) {
+        size_t index = (y * image_width + x) * 3;
+        float r = framebuffer[index + 0] / 255.0f;
+        float g = framebuffer[index + 1] / 255.0f;
+        float b = framebuffer[index + 2] / 255.0f;
+
+        glColor3f(r, g, b);
+        float gl_x = (float)x / (image_width / 2.0f) - 1.0f;
+        float gl_y = 1.0f - (float)y / (image_height / 2.0f);
+        glVertex2f(gl_x, gl_y);
+        // glVertex2f((float)x / (image_width / 2.0f) - 1.0f,
+        //            (float)y / (image_height / 2.0f) - 1.0f);
+      }
+    }
+    glEnd();
+    glFlush();
+  }
+
   void render(const Hittable &world) {
     init();
+
+    framebuffer.resize(image_width * image_height * 3);
 
     std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
     for (int y = 0; y < image_height; y++) {
@@ -31,13 +61,15 @@ public:
           Ray r = get_ray(x, y);
           pixel_color += ray_color(r, world, max_recursion_depth);
         }
-        write_color(std::cout, pixel_sample_scale * pixel_color);
+        size_t index = (y * image_width + x) * 3;
+
+        write_to_framebuffer(framebuffer, pixel_sample_scale * pixel_color,
+                             index);
       }
     }
   }
 
 private:
-  int image_height;
   Point3 camera_center;
   Point3 pixel_00;
   Point3 pixel_delta_u;

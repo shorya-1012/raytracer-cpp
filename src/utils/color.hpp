@@ -3,6 +3,7 @@
 #include "intervals.hpp"
 #include "vec3.hpp"
 #include <cmath>
+#include <vector>
 
 using Color = Vec3;
 
@@ -12,7 +13,8 @@ inline double linear_to_gamma(double linear_comp) {
   return 0;
 }
 
-inline void write_color(std::ostream &out, const Color &pixel_color) {
+inline void write_to_framebuffer(std::vector<unsigned char> &framebuff,
+                                 const Color &pixel_color, size_t index) {
   // Translate the [0,1] component values to the byte range [0,255].
   double r = pixel_color.x();
   double g = pixel_color.y();
@@ -29,5 +31,8 @@ inline void write_color(std::ostream &out, const Color &pixel_color) {
   int bbyte = int(256 * intensity.clamp(b));
 
   // Write out the pixel color components.
-  out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
+  // out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
+  framebuff[index + 0] = static_cast<unsigned char>(rbyte);
+  framebuff[index + 1] = static_cast<unsigned char>(gbyte);
+  framebuff[index + 2] = static_cast<unsigned char>(bbyte);
 }

@@ -8,6 +8,13 @@
 constexpr int image_width = 400;
 constexpr double aspect_ratio = 16.0 / 9.0;
 
+Camera *g_cam = nullptr;
+
+void display_callback() {
+  if (g_cam)
+    g_cam->display();
+}
+
 int main(int argc, char *argv[]) {
 
   auto ground_material = std::make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
@@ -27,6 +34,15 @@ int main(int argc, char *argv[]) {
 
   Camera camera(image_width, aspect_ratio, 10);
   camera.render(world);
+  g_cam = &camera;
+
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+  glutInitWindowSize(camera.image_width, camera.image_height);
+  glutCreateWindow("Ray Tracer Output");
+
+  glutDisplayFunc(display_callback);
+  glutMainLoop();
 
   return 0;
 }
