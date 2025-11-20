@@ -37,8 +37,6 @@ public:
         float gl_x = (float)x / (image_width / 2.0f) - 1.0f;
         float gl_y = 1.0f - (float)y / (image_height / 2.0f);
         glVertex2f(gl_x, gl_y);
-        // glVertex2f((float)x / (image_width / 2.0f) - 1.0f,
-        //            (float)y / (image_height / 2.0f) - 1.0f);
       }
     }
     glEnd();

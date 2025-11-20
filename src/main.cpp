@@ -3,9 +3,11 @@
 #include "utils/material.hpp"
 #include "utils/shapes/sphere.hpp"
 #include "utils/vec3.hpp"
+#include <GL/glut.h>
+#include <iostream>
 #include <memory>
 
-constexpr int image_width = 400;
+constexpr int image_width = 1280;
 constexpr double aspect_ratio = 16.0 / 9.0;
 
 Camera *g_cam = nullptr;
@@ -15,22 +17,52 @@ void display_callback() {
     g_cam->display();
 }
 
-int main(int argc, char *argv[]) {
+std::shared_ptr<Material> create_material() {
+  int choice;
+  std::cout << "\nChoose material type:\n";
+  std::cout << "1. Lambertian (Diffuse)\n";
+  std::cout << "2. Metal\n";
+  std::cout << "Enter choice: ";
+  std::cin >> choice;
 
-  auto ground_material = std::make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
-  auto center_material = std::make_shared<Lambertian>(Color(0.1, 0.2, 0.5));
-  auto left_material = std::make_shared<Metal>(Color(0.8, 0.8, 0.8), 0.3);
-  auto right_material = std::make_shared<Metal>(Color(0.8, 0.6, 0.2), 1.0);
+  double r, g, b;
+  std::cout << "Enter color (r g b, values 0–1): ";
+  std::cin >> r >> g >> b;
+
+  if (choice == 2) {
+    double fuzz;
+    std::cout << "Enter fuzziness (0–1): ";
+    std::cin >> fuzz;
+    return std::make_shared<Metal>(Color(r, g, b), fuzz);
+  }
+
+  // Default to Lambertian
+  return std::make_shared<Lambertian>(Color(r, g, b));
+}
+
+int main(int argc, char *argv[]) {
+  int n;
+  std::cout << "Enter number of spheres: ";
+  std::cin >> n;
 
   HittableList world;
+
+  // Ground sphere
+  auto ground_material = std::make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
   world.push_back(std::make_shared<Sphere>(Point3(0.0, -100.5, -1.0), 100.0,
                                            ground_material));
-  world.push_back(
-      std::make_shared<Sphere>(Point3(0.0, 0.0, -1.2), 0.5, center_material));
-  world.push_back(
-      std::make_shared<Sphere>(Point3(-1.0, 0.0, -1.0), 0.5, left_material));
-  world.push_back(
-      std::make_shared<Sphere>(Point3(1.0, 0.0, -1.0), 0.5, right_material));
+
+  for (int i = 0; i < n; ++i) {
+    double x, y, z, radius;
+    std::cout << "\nSphere " << i + 1 << ":\n";
+    std::cout << "Enter position (x y z): ";
+    std::cin >> x >> y >> z;
+    std::cout << "Enter radius: ";
+    std::cin >> radius;
+
+    auto mat = create_material();
+    world.push_back(std::make_shared<Sphere>(Point3(x, y, z), radius, mat));
+  }
 
   Camera camera(image_width, aspect_ratio, 10);
   camera.render(world);
